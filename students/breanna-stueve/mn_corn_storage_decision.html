@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should the co-op add corn storage? Minnesota corn production trend</title>
+<!--
+  ============================================================================
+  READ ME FIRST: WHERE THIS DATA COMES FROM AND WHERE IT IS STORED
+  ============================================================================
+  WHERE IT COMES FROM
+  - All the numbers come from the USDA's National Agricultural Statistics
+    Service (NASS), the federal agency that surveys farmers and publishes
+    official crop estimates. NASS puts the same figures in its public database,
+    Quick Stats (https://quickstats.nass.usda.gov).
+  - The built-in numbers are Minnesota "CORN, GRAIN - PRODUCTION, MEASURED IN BU"
+    (statewide total, in bushels) for 2021-2025, plus NASS's October 1, 2026
+    forecast for this year's crop. They were copied by hand from NASS
+    reports (links are at the bottom of the page):
+      * 2021 and 2022: Minnesota Crop Production 2022 Annual Summary (Jan 2023)
+      * 2023: NASS Minnesota corn county maps for 2023 (state total 1,513,300,000 bu)
+      * 2024: Minnesota Crop Production 2024 Annual Summary (Jan 2025)
+      * 2025 (final) and 2026 (forecast): national Crop Production report, Oct 2026
+    2021, 2022 and 2024 were only published rounded to the nearest
+    10 million bushels in those summaries, so they are shown that way.
+  - The year filter can also use a file you export yourself from Quick Stats
+    (see "Load a Quick Stats CSV" on the page). That lets you add county rows.
+
+  WHERE IT IS STORED
+  - The built-in data lives INSIDE THIS FILE, in the JavaScript list
+    called BUILT_IN_DATA (search for it below). There is no database and no
+    server. The page doesn't fetch anything from the internet, so it works offline.
+  - If you load a CSV with the file picker, your browser reads it into memory
+    (the variable `loadedRows`). It is NOT uploaded anywhere and NOT saved.
+    Refresh the page and it's gone; the original stays wherever you saved it
+    on your computer.
+  - The official copy of the data stays on USDA's servers at Quick Stats.
+  ============================================================================
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --surface-0: #f4f3ef;
+    --surface-1: #fcfcfb;
+    --border: #e2e0d9;
+    --grid: #ebe9e3;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #7a7974;
+    --series-1: #2a78d6;      /* actual production */
+    --series-1-soft: #86b6ef; /* other years, de-emphasized */
+    --accent-good: #1a7f37;
+    --accent-warn: #9a6700;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-0: #121211;
+      --surface-1: #1a1a19;
+      --border: #33322f;
+      --grid: #2a2a28;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #8f8e88;
+      --series-1: #3987e5;
+      --series-1-soft: #184f95;
+      --accent-good: #4ac26b;
+      --accent-warn: #d4a72c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface-0); color: var(--text-primary);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+  .sub { color: var(--text-secondary); margin: 0 0 24px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; margin-bottom: 18px;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; margin-bottom: 14px; }
+  .controls label { display: flex; flex-direction: column; font-size: 13px; color: var(--text-secondary); gap: 4px; }
+  select, input[type=number] {
+    font: inherit; padding: 6px 8px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface-0); color: var(--text-primary);
+    min-width: 120px;
+  }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .tile .k { font-size: 12px; color: var(--text-secondary); }
+  .tile .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .n { font-size: 12px; color: var(--text-muted); }
+  .verdict { border-left: 4px solid var(--series-1); padding: 4px 0 4px 14px; }
+  .verdict strong { font-size: 18px; }
+  #chart { width: 100%; height: auto; display: block; }
+  .tooltip {
+    position: fixed; pointer-events: none; background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    font-size: 13px; box-shadow: 0 4px 14px rgba(0,0,0,.15); display: none; z-index: 10;
+  }
+  .legend { display: flex; gap: 18px; font-size: 13px; color: var(--text-secondary); margin-top: 6px; flex-wrap: wrap; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--text-secondary); font-weight: 600; }
+  tr.sel td { font-weight: 700; }
+  .muted { color: var(--text-muted); font-size: 13px; }
+  .msg { font-size: 13px; margin-top: 8px; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  a { color: var(--series-1); }
+  details summary { cursor: pointer; font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Should our grain co-op add corn storage before the next harvest?</h1>
+  <p class="sub">Minnesota corn-for-grain production, 2021–2026. Source: USDA NASS. Pick a year to see how that crop compares with the years before it.</p>
+
+  <section class="card">
+    <div class="controls">
+      <label>Year
+        <select id="yearSelect" aria-label="Filter by year"></select>
+      </label>
+      <label>View
+        <select id="viewSelect">
+          <option value="state">Statewide trend</option>
+          <option value="county">Counties in selected year</option>
+        </select>
+      </label>
+      <label>Load a Quick Stats CSV (optional)
+        <input type="file" id="csvInput" accept=".csv,text/csv">
+      </label>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <svg id="chart" viewBox="0 0 920 360" role="img" aria-labelledby="chartTitle"></svg>
+    <div class="legend" id="legend"></div>
+    <div class="msg" id="msg"></div>
+  </section>
+
+  <section class="card">
+    <h2>What the trend says for the selected year</h2>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <section class="card">
+    <h2>What-if: size it for your co-op</h2>
+    <p class="muted">These two inputs are placeholders. Replace them with your co-op's real numbers. The calculation assumes your share of the state crop stays the same.</p>
+    <div class="controls">
+      <label>Share of Minnesota crop your co-op handles (%)
+        <input type="number" id="shareInput" value="1" min="0.01" step="0.1">
+      </label>
+      <label>Current storage capacity (bushels)
+        <input type="number" id="capInput" value="15000000" min="0" step="500000">
+      </label>
+    </div>
+    <div class="tiles" id="whatIf"></div>
+  </section>
+
+  <section class="card">
+    <h2>Data table</h2>
+    <table id="dataTable"></table>
+    <p class="muted">Production in bushels. Yield in bushels per acre. Harvested acres are shown only where NASS stated them in the source used. 2026 is NASS's October 1 forecast, not a final number. NASS updates it in its monthly reports and finalizes it in January.</p>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>About the CSV you uploaded to class (Crop Progress, week ending Nov 1, 2026)</summary>
+      <p>That export is a <em>Crop Progress</em> report, a weekly snapshot of field work. It isn't a production report. It has no county or multi-year rows. For Minnesota corn it has one useful number: <strong>82% of the crop harvested, compared with an 85% five-year average</strong>. That means harvest is running a little behind normal. It says nothing about how big the crop is. If you load that file above, the page will tell you it has no production rows.</p>
+      <p>To get county-level production for the chart, open Quick Stats and choose
+        Program: SURVEY → Sector: CROPS → Group: FIELD CROPS → Commodity: CORN →
+        Data Item: <code>CORN, GRAIN - PRODUCTION, MEASURED IN BU</code> → Geographic Level: COUNTY →
+        State: MINNESOTA → Years: 2021–2025. Then click "Get Data" and "Spreadsheet" and load the file here.
+        County estimates for a crop come out the following February, so 2026 counties won't exist until 2027.</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Sources</h2>
+    <ul>
+      <li><a href="https://quickstats.nass.usda.gov" target="_blank" rel="noopener">USDA NASS Quick Stats</a> (database the fields come from)</li>
+      <li><a href="https://www.nass.usda.gov/Statistics_by_State/Minnesota/Publications/Crops_Press_Releases/2023/MN-Crop-Production-Annual-01-23.pdf" target="_blank" rel="noopener">NASS Minnesota Crop Production 2022 Summary</a> (2021, 2022)</li>
+      <li><a href="https://nass.usda.gov/statistics_by_state/Minnesota/Publications/County_Estimates/2024/MN-Corn-Thematic-Maps-2023.pdf" target="_blank" rel="noopener">NASS Minnesota Corn Maps 2023</a> (2023)</li>
+      <li><a href="https://nass.usda.gov/Statistics_by_State/Minnesota/Publications/Crops_Press_Releases/2025/MN-Crop-Production-Annual-01-25.pdf" target="_blank" rel="noopener">NASS Minnesota Crop Production 2024 Summary</a> (2024)</li>
+      <li><a href="https://esmis.nal.usda.gov/sites/default/release-files/796123/crop1026.pdf" target="_blank" rel="noopener">NASS Crop Production, October 2026</a> (2025 final, 2026 forecast)</li>
+    </ul>
+  </section>
+</main>
+<div class="tooltip" id="tip"></div>
+
+<script>
+/* ===========================================================================
+   1) THE DATA
+   ---------------------------------------------------------------------------
+   BUILT_IN_DATA is where the built-in numbers are stored: right here in the
+   file. Each row uses the same field names as a USDA Quick Stats export
+   (state, county, year, commodity, value), so a real export can be loaded the
+   same way.
+   - county "STATE TOTAL" means a statewide number, not one county.
+   - value = bushels of corn for grain produced.
+   - yield and acres are extra context from the same NASS reports
+     (null = not stated in the source used).
+   - forecast: true marks a number that NASS will still revise.
+   =========================================================================== */
+const BUILT_IN_DATA = [
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2021, commodity: "CORN", value: 1390000000, yield: 178, acres: 7840000, forecast: false, note: "Published rounded to 1.39 billion" },
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2022, commodity: "CORN", value: 1460000000, yield: 195, acres: 7490000, forecast: false, note: "Published rounded to 1.46 billion" },
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2023, commodity: "CORN", value: 1513300000, yield: 185, acres: null,    forecast: false, note: "" },
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2024, commodity: "CORN", value: 1350000000, yield: 174, acres: null,    forecast: false, note: "Published rounded to 1.35 billion" },
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2025, commodity: "CORN", value: 1696440000, yield: 201, acres: 8440000, forecast: false, note: "Record crop" },
+  { state: "MINNESOTA", county: "STATE TOTAL", year: 2026, commodity: "CORN", value: 1618500000, yield: 195, acres: 8300000, forecast: true,  note: "NASS Oct 1, 2026 forecast" }
+];
+
+/* Rows read from a CSV you load with the file picker. They are kept in memory
+   only. Nothing is sent or saved. Empty until you load a file. */
+let loadedRows = [];
+
+/* ===========================================================================
+   2) READING A QUICK STATS CSV (optional)
+   ---------------------------------------------------------------------------
+   Quick Stats exports have columns like "Year", "State", "County",
+   "Commodity", "Data Item" and "Value". Numbers in "Value" use commas
+   ("1,513,300,000"), and suppressed cells show "(D)". This code keeps only
+   Minnesota corn grain PRODUCTION rows measured in bushels.
+   =========================================================================== */
+function parseCSV(text) {
+  const rows = []; let row = [], field = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else field += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); rows.push(row); row = []; field = "";
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1);
+}
+
+function rowsFromQuickStats(text) {
+  const table = parseCSV(text);
+  const head = table[0].map(h => h.trim().toLowerCase());
+  const col = name => head.indexOf(name);
+  const iYear = col("year"), iState = col("state"), iCounty = col("county"),
+        iCom = col("commodity"), iItem = col("data item"), iVal = col("value"),
+        iGeo = col("geo level"), iPeriod = col("period");
+  if (iYear < 0 || iState < 0 || iVal < 0) throw new Error("This doesn't look like a Quick Stats export (missing Year/State/Value columns).");
+  const out = [];
+  for (const r of table.slice(1)) {
+    const state = (r[iState] || "").toUpperCase();
+    const commodity = iCom >= 0 ? (r[iCom] || "").toUpperCase() : "";
+    const item = iItem >= 0 ? (r[iItem] || "").toUpperCase() : "";
+    const period = iPeriod >= 0 ? (r[iPeriod] || "").toUpperCase() : "YEAR";
+    if (state !== "MINNESOTA" || commodity !== "CORN") continue;
+    if (!item.includes("GRAIN - PRODUCTION, MEASURED IN BU")) continue;
+    if (period && period !== "YEAR") continue;              // skip monthly forecasts
+    const value = Number((r[iVal] || "").replace(/,/g, ""));
+    if (!isFinite(value)) continue;                          // skips "(D)" suppressed cells
+    const geo = iGeo >= 0 ? (r[iGeo] || "").toUpperCase() : "";
+    const county = geo === "STATE" ? "STATE TOTAL" : ((iCounty >= 0 && r[iCounty]) ? r[iCounty].toUpperCase() : "STATE TOTAL");
+    if (county.startsWith("OTHER")) continue;                // "OTHER (COMBINED) COUNTIES"
+    out.push({ state, county, year: Number(r[iYear]), commodity, value, yield: null, acres: null, forecast: false, note: "From your CSV" });
+  }
+  return out;
+}
+
+/* ===========================================================================
+   3) COMBINING BUILT-IN AND LOADED DATA
+   If your CSV has a statewide total for a year, it replaces the built-in one.
+   County rows only come from a loaded CSV.
+   =========================================================================== */
+function stateSeries() {
+  const byYear = new Map(BUILT_IN_DATA.map(d => [d.year, { ...d }]));
+  for (const d of loadedRows) if (d.county === "STATE TOTAL") {
+    const prev = byYear.get(d.year);
+    byYear.set(d.year, { ...(prev || {}), ...d, yield: prev ? prev.yield : null, acres: prev ? prev.acres : null });
+  }
+  return [...byYear.values()].sort((a, b) => a.year - b.year);
+}
+function countyRows(year) {
+  return loadedRows.filter(d => d.year === year && d.county !== "STATE TOTAL").sort((a, b) => b.value - a.value);
+}
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const bil = v => (v / 1e9).toFixed(2) + "B";
+const mil = v => (v / 1e6).toFixed(1) + "M";
+const fmt = v => v.toLocaleString("en-US");
+const pct = v => (v >= 0 ? "+" : "") + (v * 100).toFixed(1) + "%";
+function slope(points) {             // least-squares trend line, bushels per year
+  const n = points.length; if (n < 2) return 0;
+  const mx = points.reduce((s, p) => s + p.year, 0) / n, my = points.reduce((s, p) => s + p.value, 0) / n;
+  let num = 0, den = 0;
+  for (const p of points) { num += (p.year - mx) * (p.value - my); den += (p.year - mx) ** 2; }
+  return num / den;
+}
+
+/* ===========================================================================
+   4) THE ANALYSIS: compare the selected year with the years before it
+   =========================================================================== */
+function analyze(year) {
+  const s = stateSeries();
+  const cur = s.find(d => d.year === year);
+  const prior = s.filter(d => d.year < year).slice(-5);
+  if (!cur || prior.length === 0) return { cur, prior };
+  const avg = prior.reduce((a, d) => a + d.value, 0) / prior.length;
+  const peak = Math.max(...prior.map(d => d.value));
+  const low = Math.min(...prior.map(d => d.value));
+  const last = prior[prior.length - 1];
+  const tr = slope([...prior, cur]);
+  // biggest single-year swing seen in the window (how much the crop can move)
+  const window = [...prior, cur]; let swing = 0, swingYear = null, swingSigned = 0;
+  for (let i = 1; i < window.length; i++) {
+    const ch = window[i].value / window[i - 1].value - 1;
+    if (Math.abs(ch) > swing) { swing = Math.abs(ch); swingYear = window[i].year; swingSigned = ch; }
+  }
+  return { cur, prior, avg, peak, low, last, tr, swing, swingYear, swingSigned, vsAvg: cur.value / avg - 1, vsLast: cur.value / last.value - 1 };
+}
+
+/* ===========================================================================
+   5) DRAWING (plain SVG, so no internet or chart library is needed)
+   =========================================================================== */
+const svg = $("chart"), tip = $("tip");
+const W = 920, H = 360, M = { t: 24, r: 20, b: 44, l: 70 };
+
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = "block"; moveTip(e); }
+function moveTip(e) { tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; }
+function hideTip() { tip.style.display = "none"; }
+
+function drawState(year) {
+  const s = stateSeries(), a = analyze(year);
+  const max = Math.max(...s.map(d => d.value)) * 1.12;
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const bw = iw / s.length, gap = Math.min(40, bw * 0.35);
+  const y = v => M.t + ih - (v / max) * ih;
+  let g = `<title id="chartTitle">Minnesota corn production by year, ${year} highlighted</title>`;
+  // gridlines + axis labels (billions of bushels)
+  for (let t = 0; t <= max; t += 0.4e9) {
+    g += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/>`;
+    g += `<text x="${M.l - 10}" y="${y(t) + 4}" text-anchor="end" font-size="12" fill="var(--text-muted)">${(t / 1e9).toFixed(1)}B</text>`;
+  }
+  g += `<defs><pattern id="hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="var(--series-1)" opacity=".35"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--series-1)" stroke-width="3"/></pattern></defs>`;
+  // average of prior years (reference line)
+  if (a.avg) {
+    g += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(a.avg)}" y2="${y(a.avg)}" stroke="var(--text-secondary)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+  }
+  s.forEach((d, i) => {
+    const x = M.l + i * bw + gap / 2, w = bw - gap, top = y(d.value), h = M.t + ih - top;
+    const sel = d.year === year;
+    const fill = d.forecast ? "url(#hatch)" : (sel ? "var(--series-1)" : "var(--series-1-soft)");
+    // bar with rounded top only
+    g += `<path d="M${x},${M.t + ih} V${top + 4} Q${x},${top} ${x + 4},${top} H${x + w - 4} Q${x + w},${top} ${x + w},${top + 4} V${M.t + ih} Z" fill="${fill}" ${sel ? 'stroke="var(--text-primary)" stroke-width="2"' : ""}/>`;
+    g += `<text x="${x + w / 2}" y="${top - 8}" text-anchor="middle" font-size="13" font-weight="${sel ? 700 : 400}" fill="var(--text-primary)">${bil(d.value)}</text>`;
+    g += `<text x="${x + w / 2}" y="${H - M.b + 20}" text-anchor="middle" font-size="13" font-weight="${sel ? 700 : 400}" fill="var(--text-secondary)">${d.year}${d.forecast ? " (F)" : ""}</text>`;
+    // larger invisible hit area for hover + click-to-select
+    g += `<rect class="hit" data-year="${d.year}" x="${M.l + i * bw}" y="${M.t}" width="${bw}" height="${ih}" fill="transparent" style="cursor:pointer"/>`;
+  });
+  g += `<line x1="${M.l}" x2="${W - M.r}" y1="${M.t + ih}" y2="${M.t + ih}" stroke="var(--text-muted)"/>`;
+  svg.innerHTML = g;
+  svg.querySelectorAll(".hit").forEach(r => {
+    const d = s.find(v => v.year === +r.dataset.year);
+    r.addEventListener("mousemove", e => showTip(e,
+      `<b>${d.year}${d.forecast ? " forecast" : ""}</b><br>${fmt(d.value)} bu` +
+      (d.yield ? `<br>Yield: ${d.yield} bu/acre` : "") + (d.note ? `<br><span style="color:var(--text-muted)">${d.note}</span>` : "")));
+    r.addEventListener("mouseleave", hideTip);
+    r.addEventListener("click", () => { $("yearSelect").value = d.year; render(); });
+  });
+  $("legend").innerHTML =
+    `<span><span class="sw" style="background:var(--series-1)"></span>Selected year (final)</span>` +
+    `<span><span class="sw" style="background:var(--series-1-soft)"></span>Other years</span>` +
+    `<span><span class="sw" style="background-image:repeating-linear-gradient(45deg,var(--series-1) 0 3px,transparent 3px 6px)"></span>Forecast (F), will be revised</span>` +
+    `<span>– – Average of up to 5 years before the selected year (value in the tile above)</span>`;
+}
+
+function drawCounty(year) {
+  const rows = countyRows(year).slice(0, 15);
+  if (!rows.length) {
+    svg.innerHTML = `<title id="chartTitle">No county data loaded</title><text x="${W / 2}" y="${H / 2 - 10}" text-anchor="middle" font-size="15" fill="var(--text-secondary)">No county rows for ${year} yet.</text><text x="${W / 2}" y="${H / 2 + 14}" text-anchor="middle" font-size="13" fill="var(--text-muted)">Load a county-level Quick Stats CSV above (steps are in the "About the CSV" section).</text>`;
+    $("legend").innerHTML = ""; return;
+  }
+  const max = rows[0].value * 1.15, iw = W - 170 - M.r, rowH = (H - M.t - 10) / rows.length;
+  let g = `<title id="chartTitle">Top ${rows.length} Minnesota counties by corn production, ${year}</title>`;
+  rows.forEach((d, i) => {
+    const yy = M.t + i * rowH, w = (d.value / max) * iw, bh = Math.min(rowH - 6, 22);
+    g += `<text x="160" y="${yy + bh / 2 + 4}" text-anchor="end" font-size="12" fill="var(--text-secondary)">${d.county}</text>`;
+    g += `<rect x="170" y="${yy}" width="${Math.max(w, 2)}" height="${bh}" rx="3" fill="var(--series-1)"/>`;
+    g += `<text x="${174 + w}" y="${yy + bh / 2 + 4}" font-size="12" fill="var(--text-primary)">${mil(d.value)}</text>`;
+    g += `<rect class="hit" data-i="${i}" x="0" y="${yy}" width="${W}" height="${rowH}" fill="transparent"/>`;
+  });
+  svg.innerHTML = g;
+  svg.querySelectorAll(".hit").forEach(r => {
+    const d = rows[+r.dataset.i];
+    r.addEventListener("mousemove", e => showTip(e, `<b>${d.county}, ${d.year}</b><br>${fmt(d.value)} bu`));
+    r.addEventListener("mouseleave", hideTip);
+  });
+  $("legend").innerHTML = `<span>Top ${rows.length} counties, bushels of corn for grain (millions)</span>`;
+}
+
+/* ===========================================================================
+   6) TEXT: tiles, verdict, what-if, table
+   =========================================================================== */
+function renderTiles(a, year) {
+  if (!a.cur) { $("tiles").innerHTML = ""; return; }
+  const t = (k, v, n) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n || ""}</div></div>`;
+  $("tiles").innerHTML =
+    t(`${year} production${a.cur.forecast ? " (forecast)" : ""}`, bil(a.cur.value), fmt(a.cur.value) + " bu") +
+    (a.avg ? t("vs. prior-year average", pct(a.vsAvg), `avg ${bil(a.avg)} (${a.prior[0].year}–${a.last.year})`) : t("vs. prior-year average", "–", "no earlier years in data")) +
+    (a.last ? t(`vs. ${a.last.year}`, pct(a.vsLast), bil(a.last.value)) : "") +
+    (a.avg ? t("Trend line", (a.tr >= 0 ? "+" : "") + mil(a.tr) + "/yr", "least-squares slope through selected year") : "");
+}
+
+function renderVerdict(a, year) {
+  const v = $("verdict");
+  if (!a.avg) { v.innerHTML = `<p>${year} is the first year in the data, so there's nothing earlier to compare it with. Pick a later year.</p>`; return; }
+  const up = a.vsAvg > 0.05 && a.tr > 0;
+  const flat = Math.abs(a.vsAvg) <= 0.05;
+  const head = up ? "Leans yes: plan for bigger crops than the recent average."
+             : flat ? "Hold: the crop is running close to its recent average."
+             : "Leans no: the crop is below its recent average.";
+  v.innerHTML = `<p><strong>${head}</strong></p><ul>
+    <li>The ${year} crop${a.cur.forecast ? " (forecast)" : ""} is <b>${pct(a.vsAvg)}</b> against the ${a.prior.length}-year average before it (${bil(a.avg)}), and the trend line is ${a.tr >= 0 ? "rising" : "falling"} about <b>${mil(Math.abs(a.tr))} bushels a year</b>.</li>
+    <li>The highest crop in the years before was <b>${bil(a.peak)}</b>. Storage sized to the <em>average</em> would have been ${bil(a.peak - a.avg)} short in that peak year.</li>
+    <li>It's a volatile series. The biggest one-year swing in this window was <b>${(a.swing * 100).toFixed(0)}%</b> (${a.swingYear} ${a.swingSigned < 0 ? "fell" : "rose"} that much from the year before). Weather can swing the crop that much, so it can't be the only basis for permanent bins.</li>
+    <li><b>Supply-chain reading:</b> size the permanent capacity near the recent average-to-high range, and cover the top slice with flexible storage (grain bags, temporary bunkers, or leased space). The co-op then isn't paying for empty bins in a short year, and it isn't turning grain away in a record year.</li>
+    ${a.cur.forecast ? `<li class="muted">${year} is still a NASS forecast. Re-check this when NASS publishes its final estimate in January.</li>` : ""}
+  </ul>`;
+}
+
+function renderWhatIf(a) {
+  const share = (+$("shareInput").value || 0) / 100, cap = +$("capInput").value || 0;
+  if (!a.cur || !a.avg) { $("whatIf").innerHTML = ""; return; }
+  const needCur = a.cur.value * share, needPeak = Math.max(a.peak, a.cur.value) * share, needAvg = a.avg * share;
+  const t = (k, v, n, color) => `<div class="tile"><div class="k">${k}</div><div class="v" style="${color ? "color:" + color : ""}">${v}</div><div class="n">${n}</div></div>`;
+  const gap = needPeak - cap;
+  $("whatIf").innerHTML =
+    t("Your expected intake, selected year", mil(needCur) + " bu", `${(share * 100).toFixed(2)}% × ${bil(a.cur.value)}`) +
+    t("Intake at recent peak", mil(needPeak) + " bu", "the high-water mark to plan for") +
+    t("Intake at recent average", mil(needAvg) + " bu", "a reasonable floor for permanent capacity") +
+    t(gap > 0 ? "Shortfall at peak" : "Cushion at peak", mil(Math.abs(gap)) + " bu",
+      gap > 0 ? "extra capacity you would need" : "current storage already covers it",
+      gap > 0 ? "var(--accent-warn)" : "var(--accent-good)");
+}
+
+function renderTable(year) {
+  const s = stateSeries();
+  $("dataTable").innerHTML = `<tr><th>Year</th><th>State</th><th>County</th><th>Commodity</th><th>Value (bu)</th><th>Yield</th><th>Harvested acres</th><th>Change</th></tr>` +
+    s.map((d, i) => `<tr class="${d.year === year ? "sel" : ""}"><td>${d.year}${d.forecast ? " (F)" : ""}</td><td>${d.state}</td><td>${d.county}</td><td>${d.commodity}</td><td>${fmt(d.value)}</td><td>${d.yield ?? "–"}</td><td>${d.acres ? fmt(d.acres) : "–"}</td><td>${i ? pct(d.value / s[i - 1].value - 1) : "–"}</td></tr>`).join("");
+}
+
+/* ===========================================================================
+   7) WIRING: rebuild everything whenever a control changes
+   =========================================================================== */
+function fillYears() {
+  const years = [...new Set([...stateSeries().map(d => d.year), ...loadedRows.map(d => d.year)])].sort();
+  const sel = $("yearSelect"), keep = +sel.value || 2026;
+  sel.innerHTML = years.map(y => `<option value="${y}">${y}${y === 2026 ? " (forecast)" : ""}</option>`).join("");
+  sel.value = years.includes(keep) ? keep : years[years.length - 1];
+}
+function render() {
+  const year = +$("yearSelect").value, a = analyze(year);
+  $("viewSelect").value === "county" ? drawCounty(year) : drawState(year);
+  renderTiles(a, year); renderVerdict(a, year); renderWhatIf(a); renderTable(year);
+}
+$("yearSelect").addEventListener("change", render);
+$("viewSelect").addEventListener("change", render);
+$("shareInput").addEventListener("input", render);
+$("capInput").addEventListener("input", render);
+$("csvInput").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();          // reads the file locally, in your browser
+  reader.onload = () => {
+    try {
+      const rows = rowsFromQuickStats(reader.result);
+      if (!rows.length) {
+        $("msg").innerHTML = `<span style="color:var(--accent-warn)">No Minnesota corn production rows found in "${file.name}". Crop Progress or condition exports don't include production. See the steps in "About the CSV" below.</span>`;
+        return;
+      }
+      loadedRows = rows;
+      const counties = new Set(rows.filter(r => r.county !== "STATE TOTAL").map(r => r.county)).size;
+      $("msg").textContent = `Loaded ${rows.length} rows from "${file.name}" (${counties} counties). They're kept in this browser tab only.`;
+      if (counties) $("viewSelect").value = "county";
+      fillYears(); render();
+    } catch (err) { $("msg").textContent = "Couldn't read that file: " + err.message; }
+  };
+  reader.readAsText(file);
+});
+fillYears(); render();
+</script>
+</body>
+</html>
