@@ -1,3 +1,24 @@
+AI Log – Minnesota Corn Production Dashboard
 
+AI Tool Used: Claude
+Prompts
+Build a self-contained HTML webpage for my University of St. Thomas supply chain class.
 
+My decision question is: "How has Minnesota corn production changed over time, and how can grain suppliers use this information to plan their inventory?"
 
+Use my downloaded USDA NASS Quick Stats CSV file containing Minnesota corn production measured in bushels.
+
+Create a chart showing corn production by year and a dropdown that lets me select a year. Make the chart update when the selection changes.
+
+Use real values from my CSV, not made-up data. Explain where the data comes from, where it is stored, and how it is filtered. The finished webpage must work using a saved local copy of the data, without contacting USDA.
+What Went Wrong
+
+Claude had trouble reading my original Numbers file because it was not in CSV format. It had to extract the data and convert it into a usable CSV file.
+
+How I Checked It
+
+I compared the data with the USDA NASS Quick Stats information and opened the dashboard in Chrome to make sure the chart and dropdown worked.
+
+What I Learned
+
+I learned that AI can help create a webpage, but I still need to check the data and test the webpage to make sure everything works correctly.
