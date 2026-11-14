@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minnesota Agricultural Delivery Weather</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#183b2b;background:#f5f7f3}*{box-sizing:border-box}body{margin:0}header{background:#174b34;color:white;padding:38px max(24px,calc((100vw - 1040px)/2))}h1{font-size:clamp(27px,4vw,42px);margin:6px 0}header p{max-width:800px;color:#dbe8df;line-height:1.5}.eyebrow{color:#f4cb77;text-transform:uppercase;letter-spacing:1.2px;font-size:12px;font-weight:800}main{max-width:1100px;margin:25px auto;padding:0 20px}.panel{background:white;border:1px solid #dce5dc;border-radius:16px;padding:22px;margin:18px 0;box-shadow:0 4px 15px #12351b0a}.toolbar{display:flex;gap:18px;align-items:end;flex-wrap:wrap}.toolbar label{font-size:13px;font-weight:700;display:block;margin:0 0 8px}select{padding:11px;border:1px solid #9eb9a7;border-radius:9px;background:white;font:inherit;min-width:220px}.small{font-size:13px;color:#526b5a}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:16px 0}.stat{padding:18px;background:#eaf2eb;border-radius:12px}.stat strong{display:block;font-size:29px;margin:8px 0;color:#174b34}.stat span{font-size:13px;color:#445a4a}.warning{background:#fff4dd;color:#644712;padding:15px;border-left:4px solid #dba538;border-radius:8px;line-height:1.55}.ok{background:#e9f4ed;color:#195532;padding:15px;border-left:4px solid #4e9c6d;border-radius:8px;line-height:1.55}h2{margin:0 0 14px}svg{width:100%;height:auto;display:block} .legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0;color:#506256;font-size:13px}.dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px}.note{font-size:12px;color:#67776b}footer{padding:25px 0 40px;color:#526456;line-height:1.6}a{color:#186b48}button{background:#174b34;color:white;border:0;border-radius:9px;padding:11px 16px;cursor:pointer;font:inherit}button:focus-visible,select:focus-visible{outline:3px solid #e2a53a}#error{color:#9c271e}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">OPMT 375 · Harvest to Screen</div><h1>Weather & Agricultural Deliveries</h1><p><b>Decision question:</b> Which days in the recent Minneapolis-area weather record would have warranted a review of agricultural delivery schedules?</p></header>
+<main>
+<section class="panel"><h2>Explore the stored weather data</h2><div class="toolbar"><div><label for="day">Choose a day</label><select id="day"><option>Loading stored CSV…</option></select></div><div><label for="metric">Chart weather variable</label><select id="metric"><option value="rain">Hourly rain (mm)</option><option value="wind">Hourly wind at 10 m (km/h)</option><option value="temp">Hourly temperature (°C)</option></select></div></div><p class="small" id="coverage">Loading…</p><p id="error" role="alert"></p></section>
+<section class="cards" aria-label="Daily weather summaries"><div class="stat"><span>Daily rainfall</span><strong id="rain">—</strong><span>Millimeters</span></div><div class="stat"><span>Daily snowfall</span><strong id="snow">—</strong><span>Centimeters</span></div><div class="stat"><span>Highest hourly wind speed</span><strong id="wind">—</strong><span>km/h, at 10 m height</span></div><div class="stat"><span>Hourly observations</span><strong id="count">—</strong><span>Entries for selected day</span></div></section>
+<section class="panel"><h2 id="chartTitle">Hourly weather</h2><div id="chart" role="img" aria-label="Hourly weather chart"></div><p class="note">Time labels are UTC (GMT) because the original file identifies GMT as its timezone. They are not Minneapolis local times.</p></section>
+<section class="panel"><h2>Delivery planning interpretation</h2><div id="decision" class="ok">Select a day to view the weather conditions.</div><p class="small">This is a screening tool, not an automatic weather safety decision. It shows historical conditions, not a forecast. A dispatcher would also check road reports, current forecasts, and company policies before changing deliveries.</p></section>
+<footer><b>Data source:</b> <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, user-provided export for 44.96949°N, 93.26296°W (Minneapolis area). Original file received November 14, 2026; exact original download date and request URL were not provided. The website reads the local file <code>weather-minneapolis.csv</code>, so no live API is needed. The exported dates are October 29–November 12, 2026.<br><span class="note">Illustrative review thresholds used here: rainfall ≥ 5 mm/day, snow > 0 cm/day, or any hourly wind ≥ 25 km/h. These are classroom screening rules, not official safety thresholds.</span></footer>
+</main>
+<script>
+// ME: The weather information comes from a saved CSV beside this HTML file, not a live weather website.
+const CSV_FILE = 'weather-minneapolis.csv';
+// ME: This array keeps the hourly records in the browser after the CSV loads. It does not change the saved file.
+let records = [];
+const el = id=>document.getElementById(id);
+const num=x=>Number(x||0);
+function parseCsv(s){
+  const lines=s.replace(/\r/g,'').split('\n').filter(x=>x.trim()&&!x.startsWith('#'));
+  const headers=lines.shift().split(',');
+  const find=(prefix)=>headers.findIndex(h=>h.startsWith(prefix));
+  const pos={time:find('time'),temp:find('temperature_2m'),rain:find('rain ('),snow:find('snowfall ('),wind:find('wind_speed_10m')};
+  if(Object.values(pos).some(i=>i<0))throw Error('Stored data is missing an expected column.');
+  return lines.map(line=>{const f=line.split(',');return {time:f[pos.time],temp:num(f[pos.temp]),rain:num(f[pos.rain]),snow:num(f[pos.snow]),wind:num(f[pos.wind])}}).filter(r=>/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(r.time));
+}
+function fmt(x,d=1){return x.toFixed(d)}
+function renderChart(rows,metric){
+  const w=920,h=290,left=55,right=18,top=24,bot=45,plotW=w-left-right,plotH=h-top-bot;
+  const vals=rows.map(r=>r[metric]);let lo=metric==='temp'?Math.min(0,...vals):0,hi=Math.max(...vals);
+  if(hi===lo)hi=lo+1;const nice=hi-lo;hi+=nice*.08;
+  let parts=[];for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=top+plotH-(v-lo)/(hi-lo)*plotH;parts.push(`<line x1="${left}" x2="${w-right}" y1="${y}" y2="${y}" stroke="#dfe8df"/><text x="${left-9}" y="${y+4}" font-size="12" fill="#66766b" text-anchor="end">${fmt(v)}</text>`)}
+  const barW=plotW/rows.length;
+  for(let i=0;i<rows.length;i++){let val=vals[i],y=top+plotH-(val-lo)/(hi-lo)*plotH,base=top+plotH-(0-lo)/(hi-lo)*plotH,topBar=Math.min(y,base),height=Math.max(1,Math.abs(base-y));parts.push(`<rect x="${left+i*barW+2}" y="${topBar}" width="${Math.max(2,barW-4)}" height="${height}" fill="${metric==='rain'?'#438e78':metric==='wind'?'#c78a38':'#507d9d'}"><title>${rows[i].time.slice(11)} UTC: ${val}</title></rect>`);if(i%3===0)parts.push(`<text x="${left+(i+.5)*barW}" y="${h-17}" font-size="12" fill="#566a5c" text-anchor="middle">${rows[i].time.slice(11,13)}:00</text>`)}
+  el('chart').innerHTML=`<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">${parts.join('')}</svg>`;
+  el('chart').setAttribute('aria-label',`${metric} values for ${rows.length} hourly observations on ${el('day').value} UTC`);
+}
+// ME: This part filters the stored records to the selected date, adds the hourly values, and redraws the chart.
+function update(){const date=el('day').value,metric=el('metric').value,rows=records.filter(r=>r.time.startsWith(date));if(!rows.length)return;
+  const rain=rows.reduce((a,r)=>a+r.rain,0),snow=rows.reduce((a,r)=>a+r.snow,0),wind=Math.max(...rows.map(r=>r.wind));
+  el('rain').textContent=fmt(rain)+' mm';el('snow').textContent=fmt(snow)+' cm';el('wind').textContent=fmt(wind)+' km/h';el('count').textContent=rows.length;
+  el('chartTitle').textContent=`${{rain:'Rainfall',wind:'Wind speed at 10 m',temp:'Temperature'}[metric]} — ${date}`;
+  renderChart(rows,metric);
+  const reasons=[];if(rain>=5)reasons.push('rainfall reached the 5 mm/day review threshold');if(snow>0)reasons.push('snowfall was recorded');if(wind>=25)reasons.push('hourly wind reached the 25 km/h review threshold');
+  el('decision').className=reasons.length?'warning':'ok';el('decision').textContent=reasons.length?`Review deliveries for this historical day: ${reasons.join('; ')}. Check conditions and routes before changing schedules.`:'No classroom review thresholds were reached on this historical day. Actual road conditions and current forecasts would still need checking.';
+}
+async function load(){try{const res=await fetch(CSV_FILE);if(!res.ok)throw Error('Could not load the local CSV ('+res.status+').');records=parseCsv(await res.text());if(!records.length)throw Error('No hourly rows found.');const dates=[...new Set(records.map(r=>r.time.slice(0,10)))].sort();el('day').innerHTML=dates.map(d=>`<option value="${d}">${d}</option>`).join('');el('coverage').textContent=`${records.length} hourly observations across ${dates.length} dates (${dates[0]} to ${dates.at(-1)}). Loaded from ${CSV_FILE}.`;el('day').value=dates[0];el('day').addEventListener('change',update);el('metric').addEventListener('change',update);update()}catch(e){el('error').textContent='Unable to read stored CSV. If you opened the HTML directly from your computer, use GitHub Pages or run a local web server (python -m http.server). '+e.message;el('coverage').textContent='The CSV must be in the same folder as this page.'}}
+load();
+</script></body></html>
