@@ -1,0 +1,30 @@
+ExternalKey,Name,Level,ParentExternalKey,Classification,Definition,Evidence
+CAP-02,Grain Origination Management,1,,CORE,"The ability to attract, contract and secure grain from growers and member cooperatives.","S4, S12, S27"
+CAP-02.01,Grower Relationship Management,2,CAP-02,CORE,The ability to establish and keep relationships with growers who sell grain directly to CHS.,"S4, S12, S23"
+CAP-02.03,Purchase Contract Management,2,CAP-02,CORE,"The ability to offer, maintain and price grain purchase commitments with growers and cooperatives.",S27
+CAP-02.06,Member Cooperative Supply Management,2,CAP-02,CORE,"The ability to secure, contract and coordinate grain supply from independent member cooperatives.","S25, S27 (added for CHS)"
+CAP-03,Grain Handling and Storage Management,1,,SUPPORTING,"The ability to receive, assess, store, account for and load grain at CHS facilities.","S4, S10, S15"
+CAP-03.01,Inbound Grain Receiving,2,CAP-03,SUPPORTING,"The ability to accept, identify and weigh inbound grain.","S4, S10"
+CAP-03.06,Inventory Control,2,CAP-03,SUPPORTING,"The ability to know the quantity, quality and ownership of grain in storage.",S4
+CAP-03.07,Outbound Grain Loading,2,CAP-03,SUPPORTING,"The ability to load grain into trucks, railcars and barges to schedule and specification.","S10, S11, S16"
+CAP-04,Grain Merchandising and Risk Management,1,,CORE,"The ability to price, position, sell and hedge grain and oilseed commitments profitably.","S1, S4, S20"
+CAP-04.03,Basis Management,2,CAP-04,CORE,"The ability to value, set and manage the local cash-to-futures price relationship.","S1, S4"
+CAP-04.03.11,Location Basis Valuation,3,CAP-04.03,CORE,"The ability to value basis by location and period, including freight spreads and carry.",S4
+CAP-04.03.12,Basis Exposure Management,3,CAP-04.03,CORE,The ability to measure and limit open basis risk against approved limits.,S1
+CAP-04.03.13,Spread and Carry Management,3,CAP-04.03,CORE,The ability to manage time spreads and storage carry to decide when to hold or sell grain.,S10
+CAP-04.04,Futures and Options Risk Management,2,CAP-04,CORE,The ability to offset price risk using exchange-traded futures and options.,"S1, S20"
+CAP-05,Transportation and Network Logistics Management,1,,SUPPORTING,"The ability to plan, secure and manage freight and the shape of the facility network.","S14, S16, S22"
+CAP-05.03,Rail Logistics,2,CAP-05,SUPPORTING,"The ability to secure, use and track rail capacity for grain shipments.","S10, S14, S16"
+CAP-05.03.11,Rail Capacity Procurement,3,CAP-05.03,SUPPORTING,The ability to secure shuttle and railcar capacity from railroads on usable terms.,"S14, S16"
+CAP-05.03.12,Railcar Utilization Management,3,CAP-05.03,SUPPORTING,The ability to maximize trips per shuttle set and minimize idle cars and penalties.,"S10, S16"
+CAP-05.03.13,Rail Shipment Visibility,3,CAP-05.03,SUPPORTING,The ability to know where rail shipments are and when they will arrive.,S22
+CAP-05.06,Freight Performance Management,2,CAP-05,SUPPORTING,"The ability to measure and improve freight cost, carrier performance and penalties.","S22, S25"
+CAP-05.07,Supply Network Design,2,CAP-05,SUPPORTING,"The ability to decide where facilities, capacity and grain flows should be in the network.","S12, S14 (added for CHS)"
+CAP-06,Grain Processing and Product Conversion,1,,CORE,"The ability to convert soybeans into oil, meal, hulls and refined oil products.","S3, S5, S9"
+CAP-06.02,Oilseed Processing,2,CAP-06,CORE,"The ability to convert soybeans into crude oil, meal and hulls.","S5, S9"
+CAP-06.02.11,Crush Capacity Management,3,CAP-06.02,CORE,The ability to plan and balance crush volume across Fairmont and Mankato.,"S7, S9"
+CAP-06.02.12,Crude Soybean Oil Production,3,CAP-06.02,CORE,The ability to extract crude soybean oil to specification.,"S5, S7"
+CAP-06.02.13,Soybean Meal and Hull Production,3,CAP-06.02,CORE,The ability to produce meal and hulls to feed-market specifications.,"S5, S29"
+CAP-06.05,Food Ingredient Production,2,CAP-06,CORE,The ability to refine crude soybean oil into food-grade and specialty oil products.,"S5, S8"
+CAP-07,Market Distribution and Customer Fulfillment,1,,SUPPORTING,The ability to deliver grain and products to domestic and export customers as committed.,"S5, S11, S14"
+CAP-07.04,Export Market Fulfillment,2,CAP-07,SUPPORTING,The ability to meet export sales commitments from Minnesota origins.,"S11, S14"
