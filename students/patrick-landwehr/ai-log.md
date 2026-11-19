@@ -7,7 +7,7 @@
 
 //ME:
   WHERE THE DATA IS STORED
-   - The Minnesota rows were copied out of
+The Minnesota rows were copied out of
      the CSV and pasted straight into this HTML file, in the two lines marked
      "DATA STARTS HERE" in the script at the bottom. The original CSV stays saved in the drive.
 
@@ -92,7 +92,9 @@ select{padding:8px;font:inherit;background:var(--bg);color:var(--ink);border:1px
 </main>
 
 <script>
+  
 // ME: Data begins here showing the loaded data, rows and values loaded by the AI
+  
 // Minnesota county rows from Corn_Data.csv: [county, ag district, acres planted in 2024]
 const COUNTIES = [["Other Counties", "Other counties (combined)", 1744100], ["Benton", "Central", 55900], ["Carver", "Central", 51300], ["Kandiyohi", "Central", 156500], ["Mcleod", "Central", 112000], ["Morrison", "Central", 103500], ["Renville", "Central", 255000], ["Scott", "Central", 31500], ["Sherburne", "Central", 25200], ["Sibley", "Central", 151000], ["Stearns", "Central", 225500], ["Todd", "Central", 84300], ["Wadena", "Central", 23300], ["Aitkin", "East Central", 3000], ["Anoka", "East Central", 4100], ["Chisago", "East Central", 23900], ["Crow Wing", "East Central", 9600], ["Hennepin", "East Central", 10400], ["Isanti", "East Central", 31200], ["Mille Lacs", "East Central", 20100], ["Pine", "East Central", 16900], ["Washington", "East Central", 16000], ["Becker", "Northwest", 76400], ["Clay", "Northwest", 154500], ["Clearwater", "Northwest", 7900], ["Mahnomen", "Northwest", 50200], ["Marshall", "Northwest", 54400], ["Norman", "Northwest", 109500], ["Polk", "Northwest", 125000], ["Red Lake", "Northwest", 29900], ["Blue Earth", "South Central", 176500], ["Brown", "South Central", 155500], ["Freeborn", "South Central", 184500], ["Le Sueur", "South Central", 81500], ["Nicollet", "South Central", 113000], ["Rice", "South Central", 87300], ["Steele", "South Central", 105500], ["Waseca", "South Central", 112000], ["Watonwan", "South Central", 125500], ["Dakota", "Southeast", 85800], ["Dodge", "Southeast", 119500], ["Fillmore", "Southeast", 174500], ["Goodhue", "Southeast", 157500], ["Houston", "Southeast", 58000], ["Mower", "Southeast", 203500], ["Olmsted", "Southeast", 111000], ["Wabasha", "Southeast", 98100], ["Winona", "Southeast", 81900], ["Cottonwood", "Southwest", 164500], ["Jackson", "Southwest", 187000], ["Lincoln", "Southwest", 114500], ["Nobles", "Southwest", 205000], ["Pipestone", "Southwest", 115500], ["Redwood", "Southwest", 235500], ["Big Stone", "West Central", 92300], ["Grant", "West Central", 123000], ["Lac Qui Parle", "West Central", 173000], ["Otter Tail", "West Central", 203500], ["Pope", "West Central", 115000], ["Stevens", "West Central", 142000], ["Swift", "West Central", 200000], ["Wilkin", "West Central", 136000]];
 // Minnesota state-level acres planted from the same file. "YEAR" is the final figure;
