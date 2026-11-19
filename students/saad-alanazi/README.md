@@ -1,1 +1,3 @@
- How can weather data help Gucci Gang make better decisions when supplying corn in Minnesota?
+Question: How can weather conditions affect corn transportation and delivery schedules in Minnesota?
+
+Data Source: Open-Meteo Historical Weather API
