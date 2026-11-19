@@ -4,33 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minnesota corn: what to plan for</title>
-<!--
-  WHERE THE DATA COMES FROM (plain English)
-  ------------------------------------------
-  The numbers come from the file you attached, "Corn_Data.csv". Its column layout
-  (Program = SURVEY, "CV (%)", "Ag District", etc.) matches an export from the USDA
-  National Agricultural Statistics Service (NASS) "Quick Stats" database, which publishes
-  the government's farm survey results.
 
-  WHAT IS IN THAT FILE (important):
-   - Only ONE measure: "CORN - ACRES PLANTED". It is acres planted, NOT bushels harvested.
-   - Only ONE year: 2024. So a multi-year "annual average" cannot be calculated from it.
-   - 1,586 rows covering all states; this page keeps only the Minnesota rows
-     (62 county-level rows + 6 state-level rows).
-   - Several counties are hidden by the survey to protect privacy and are lumped together
-     as "OTHER COUNTIES". They show up here as "Other counties (combined)".
-
+//ME:
   WHERE THE DATA IS STORED
-   - Nothing is downloaded when you open this page. The Minnesota rows were copied out of
+   - The Minnesota rows were copied out of
      the CSV and pasted straight into this HTML file, in the two lines marked
      "DATA STARTS HERE" in the script at the bottom. The original CSV stays wherever you
-     saved it. To refresh with new data, re-export the CSV and replace those two lines.
+     saved it.
 
-  WHAT IS AN ASSUMPTION (not from the data)
-   - Yield per acre and the share of planted acres harvested for grain are NOT in the file.
-     They are the two sliders, set to placeholder values. Change them to your own figures
-     (e.g. from past NASS Minnesota yield reports or your suppliers).
--->
 <style>
 :root{--bg:#f1f4ee;--panel:#fbfcf9;--ink:#1c2a1f;--mute:#5d6b5f;--line:#d6ddd1;--bar:#2f6b45;--hi:#d9a521;--bar2:#a9c4b0}
 @media (prefers-color-scheme:dark){:root{--bg:#141b15;--panel:#1b241d;--ink:#e6ede5;--mute:#9aaa9d;--line:#2e3b30;--bar:#5fae7a;--hi:#e8b93a;--bar2:#3b5443}}
@@ -112,7 +93,7 @@ select{padding:8px;font:inherit;background:var(--bg);color:var(--ink);border:1px
 </main>
 
 <script>
-// ===== DATA STARTS HERE =====
+// ME: Data begins here showing the loaded data, rows and values loaded by the AI
 // Minnesota county rows from Corn_Data.csv: [county, ag district, acres planted in 2024]
 const COUNTIES = [["Other Counties", "Other counties (combined)", 1744100], ["Benton", "Central", 55900], ["Carver", "Central", 51300], ["Kandiyohi", "Central", 156500], ["Mcleod", "Central", 112000], ["Morrison", "Central", 103500], ["Renville", "Central", 255000], ["Scott", "Central", 31500], ["Sherburne", "Central", 25200], ["Sibley", "Central", 151000], ["Stearns", "Central", 225500], ["Todd", "Central", 84300], ["Wadena", "Central", 23300], ["Aitkin", "East Central", 3000], ["Anoka", "East Central", 4100], ["Chisago", "East Central", 23900], ["Crow Wing", "East Central", 9600], ["Hennepin", "East Central", 10400], ["Isanti", "East Central", 31200], ["Mille Lacs", "East Central", 20100], ["Pine", "East Central", 16900], ["Washington", "East Central", 16000], ["Becker", "Northwest", 76400], ["Clay", "Northwest", 154500], ["Clearwater", "Northwest", 7900], ["Mahnomen", "Northwest", 50200], ["Marshall", "Northwest", 54400], ["Norman", "Northwest", 109500], ["Polk", "Northwest", 125000], ["Red Lake", "Northwest", 29900], ["Blue Earth", "South Central", 176500], ["Brown", "South Central", 155500], ["Freeborn", "South Central", 184500], ["Le Sueur", "South Central", 81500], ["Nicollet", "South Central", 113000], ["Rice", "South Central", 87300], ["Steele", "South Central", 105500], ["Waseca", "South Central", 112000], ["Watonwan", "South Central", 125500], ["Dakota", "Southeast", 85800], ["Dodge", "Southeast", 119500], ["Fillmore", "Southeast", 174500], ["Goodhue", "Southeast", 157500], ["Houston", "Southeast", 58000], ["Mower", "Southeast", 203500], ["Olmsted", "Southeast", 111000], ["Wabasha", "Southeast", 98100], ["Winona", "Southeast", 81900], ["Cottonwood", "Southwest", 164500], ["Jackson", "Southwest", 187000], ["Lincoln", "Southwest", 114500], ["Nobles", "Southwest", 205000], ["Pipestone", "Southwest", 115500], ["Redwood", "Southwest", 235500], ["Big Stone", "West Central", 92300], ["Grant", "West Central", 123000], ["Lac Qui Parle", "West Central", 173000], ["Otter Tail", "West Central", 203500], ["Pope", "West Central", 115000], ["Stevens", "West Central", 142000], ["Swift", "West Central", 200000], ["Wilkin", "West Central", 136000]];
 // Minnesota state-level acres planted from the same file. "YEAR" is the final figure;
@@ -161,7 +142,7 @@ function render() {
   $('l2').textContent = 'estimated bushels';
   $('s3').textContent = fmt(STATE.YEAR);
   $('l3').textContent = 'MN state total acres (final, 2024)';
-
+// ME: Data is changed here, forming a barchard to help split and summarize the data
   // Bar chart (plain HTML, no outside libraries)
   const val = c => metric === 'acres' ? c[2] : toBu(c[2]);
   const max = Math.max(...rows.map(val));
@@ -189,3 +170,5 @@ refill(); render();
 </script>
 </body>
 </html>
+
+// ME: AI ERROR The first version of the HTML header comment said the data sat in "the two lines marked DATA STARTS HERE". It is actually a block of two constants between a START and an END marker.
