@@ -18,7 +18,7 @@ Claude had trouble reading my original Numbers file because it was not in CSV fo
 How I Checked It
 I checked the 2024 final Minnesota corn production figure of 1,345,020,000 bushels against the original USDA data. I also tested the year dropdown in Chrome to make sure the chart and production figures updated correctly.
 
-I compared the data with the USDA NASS Quick Stats information and opened the dashboard in Chrome to make sure the chart and dropdown worked.
+
 
 What I Learned
 
