@@ -23,3 +23,24 @@ I checked the 2024 final Minnesota corn production figure of 1,345,020,000 bushe
 What I Learned
 
 I learned that AI can help create a webpage, but I still need to check the data and test the webpage to make sure everything works correctly.
+## Additional AI Tool Used: ChatGPT
+
+### Prompts
+- What else do I need to do for the assignment?
+- What do I need to fix about the working webpage and stored data?
+- What do I need to change in the code to fix this?
+- It ends at line 150 instead of lines 169–173.
+- Is this correct?
+- What line?
+
+### What Went Wrong
+My original webpage used data embedded directly in the HTML instead of loading the saved CSV file. ChatGPT helped me identify this issue. While editing the code, I accidentally left duplicate script tags and two lines that loaded the data, which needed to be removed. The original line numbers also changed as I edited the code.
+
+### How I Fixed It
+I updated the HTML to load the saved mn_corn_production.csv file directly from my GitHub folder. I also removed the duplicated code and updated the comments explaining where the data is stored.
+
+### How I Checked It
+I committed the updated code to GitHub and opened my published webpage in Chrome. I tested the year dropdown and confirmed that the chart and production figures changed when I selected a different year.
+
+### What I Learned
+I learned that just because a webpage displays correctly does not mean it is retrieving its data from the correct location. I also learned how important it is to understand and test AI-generated code instead of assuming it works correctly.
