@@ -1,8 +1,12 @@
 {
   "items": [
     {
-      "name": "What you offer",
-      "description": "Describe it so a buyer at another table could order it correctly without talking to you."
+      "name": "Yellow Corn - Truckload",
+      "description": "US No. 2 yellow corn from Minnesota farms. Sold by the truckload (about 1,000 bushels). Moisture is 15% or less. Price is per bushel and based on that day's market price; we confirm it when you order. We deliver anywhere in Minnesota within 5 business days, or you can pick it up from us. Each load comes with a weight ticket. If a load doesn't meet the grade, tell us within 48 hours and we'll replace it or lower the price."
+    },
+    {
+      "name": "Yellow Corn - Future Delivery",
+      "description": "The same US No. 2 yellow corn, delivered in a future month you pick (up to 6 months out). Minimum order is 5 truckloads. We lock in the price when you order, so it won't change before delivery. Same delivery, weight ticket and quality guarantee as our truckload option."
     }
   ]
 }
