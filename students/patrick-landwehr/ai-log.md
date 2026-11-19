@@ -9,8 +9,7 @@
   WHERE THE DATA IS STORED
    - The Minnesota rows were copied out of
      the CSV and pasted straight into this HTML file, in the two lines marked
-     "DATA STARTS HERE" in the script at the bottom. The original CSV stays wherever you
-     saved it.
+     "DATA STARTS HERE" in the script at the bottom. The original CSV stays saved in the drive.
 
 <style>
 :root{--bg:#f1f4ee;--panel:#fbfcf9;--ink:#1c2a1f;--mute:#5d6b5f;--line:#d6ddd1;--bar:#2f6b45;--hi:#d9a521;--bar2:#a9c4b0}
