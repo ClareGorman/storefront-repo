@@ -4,33 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minnesota corn: what to plan for</title>
-<!--
-  WHERE THE DATA COMES FROM (plain English)
-  ------------------------------------------
-  The numbers come from the file you attached, "Corn_Data.csv". Its column layout
-  (Program = SURVEY, "CV (%)", "Ag District", etc.) matches an export from the USDA
-  National Agricultural Statistics Service (NASS) "Quick Stats" database, which publishes
-  the government's farm survey results.
-
-  WHAT IS IN THAT FILE (important):
-   - Only ONE measure: "CORN - ACRES PLANTED". It is acres planted, NOT bushels harvested.
-   - Only ONE year: 2024. So a multi-year "annual average" cannot be calculated from it.
-   - 1,586 rows covering all states; this page keeps only the Minnesota rows
-     (62 county-level rows + 6 state-level rows).
-   - Several counties are hidden by the survey to protect privacy and are lumped together
-     as "OTHER COUNTIES". They show up here as "Other counties (combined)".
-
-  WHERE THE DATA IS STORED
-   - Nothing is downloaded when you open this page. The Minnesota rows were copied out of
-     the CSV and pasted straight into this HTML file, in the two lines marked
-     "DATA STARTS HERE" in the script at the bottom. The original CSV stays wherever you
-     saved it. To refresh with new data, re-export the CSV and replace those two lines.
-
-  WHAT IS AN ASSUMPTION (not from the data)
-   - Yield per acre and the share of planted acres harvested for grain are NOT in the file.
-     They are the two sliders, set to placeholder values. Change them to your own figures
-     (e.g. from past NASS Minnesota yield reports or your suppliers).
--->
 <style>
 :root{--bg:#f1f4ee;--panel:#fbfcf9;--ink:#1c2a1f;--mute:#5d6b5f;--line:#d6ddd1;--bar:#2f6b45;--hi:#d9a521;--bar2:#a9c4b0}
 @media (prefers-color-scheme:dark){:root{--bg:#141b15;--panel:#1b241d;--ink:#e6ede5;--mute:#9aaa9d;--line:#2e3b30;--bar:#5fae7a;--hi:#e8b93a;--bar2:#3b5443}}
