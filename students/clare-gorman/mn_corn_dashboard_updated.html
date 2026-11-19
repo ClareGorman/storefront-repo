@@ -8,8 +8,8 @@
   SOURCE: USDA NASS Quick Stats (https://quickstats.nass.usda.gov/)
   Data item: CORN, GRAIN - PRODUCTION, MEASURED IN BU  |  State: MINNESOTA
   DOWNLOADED: November 12, 2026
-  STORED: inside this file (the "csv-data" block near the bottom) and also as
-          mn_corn_production.csv in the same folder. The page never contacts USDA.
+  STORED: mn_corn_production.csv in the same folder.
+        The page loads this saved file without contacting USDA.
 -->
 <style>
   :root{--bg:#fff;--fg:#1c1c1c;--muted:#666;--card:#f4f1f8;--bar:#b9a6d3;--hi:#4f2d7f;--line:#ddd}
@@ -44,47 +44,24 @@
 <h3>Where the data comes from, where it is stored, how it is filtered</h3>
 <ul class="note">
   <li><b>Comes from:</b> USDA NASS Quick Stats, downloaded as a CSV (see the date in the comment at the top of this file).</li>
-  <li><b>Stored:</b> the CSV text is pasted into this file in the hidden block <code>csv-data</code>, with a second copy in <code>mn_corn_production.csv</code>. No internet connection is needed.</li>
-  <li><b>Filtered:</b> the CSV has final annual numbers (Period = "YEAR") and monthly forecasts (Aug, Sep, Oct, Nov). The bar chart keeps only Period = "YEAR". The forecast table shows the others for the selected year.</li>
+  <li><b>Stored:</b> The data is saved in
+<code>mn_corn_production.csv</code> in the same
+GitHub folder. The webpage loads this saved file
+instead of contacting USDA.</li>
+<li><b>Filtered:</b> The chart displays final annual production numbers, and the forecast table displays forecasts for the selected year.</li>
 </ul>
 
-<!-- DATA IN: the saved CSV, kept as plain text inside the page. -->
-<script type="text/plain" id="csv-data">Program,Year,Period,Geo Level,State,Commodity,Data Item,Value
-SURVEY,2025,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1696440000
-SURVEY,2025,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1654380000
-SURVEY,2025,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1617340000
-SURVEY,2025,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1667620000
-SURVEY,2024,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1345020000
-SURVEY,2024,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1415250000
-SURVEY,2024,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1399950000
-SURVEY,2024,YEAR - OCT FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1399950000
-SURVEY,2024,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1399950000
-SURVEY,2023,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1513300000
-SURVEY,2023,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1464000000
-SURVEY,2023,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1484200000
-SURVEY,2023,YEAR - OCT FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1467800000
-SURVEY,2023,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1476000000
-SURVEY,2022,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1460550000
-SURVEY,2022,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1486100000
-SURVEY,2022,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1442050000
-SURVEY,2022,YEAR - OCT FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1434500000
-SURVEY,2022,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1434500000
-SURVEY,2021,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1378830000
-SURVEY,2021,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1328000000
-SURVEY,2021,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1450800000
-SURVEY,2021,YEAR - OCT FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1388400000
-SURVEY,2021,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1357200000
-SURVEY,2020,YEAR,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1434410000
-SURVEY,2020,YEAR - AUG FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1507050000
-SURVEY,2020,YEAR - NOV FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1525100000
-SURVEY,2020,YEAR - OCT FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1525100000
-SURVEY,2020,YEAR - SEP FORECAST,STATE,MINNESOTA,CORN,"CORN, GRAIN - PRODUCTION, MEASURED IN BU",1530000000
-</script>
-
 <script>
-// ME: This reads the USDA corn production data saved inside my webpage.
-const csvText = document.getElementById("csv-data").textContent.trim();
-// Small CSV reader that handles quoted fields (Data Item contains a comma inside quotes).
+async function loadDashboard() {
+  // ME: This loads my saved USDA corn production CSV from my GitHub folder.
+  const response = await fetch("./mn_corn_production.csv");
+
+  if (!response.ok) {
+    throw new Error("Unable to load the saved CSV file.");
+  }
+
+  const csvText = (await response.text()).trim();
+
 function parseLine(line) {
   const out = []; let cur = "", q = false;
   for (const ch of line) {
@@ -166,8 +143,14 @@ function draw() {
     `Year-to-year swings in this file are large (from ${fmtM(Math.min(...finals.map(r => r.Value)))} to ${fmtM(Math.max(...finals.map(r => r.Value)))}), ` +
     `so a supplier planning storage and purchasing should size inventory plans to a range, not a single number, and update them as each USDA forecast arrives.`;
 }
-sel.addEventListener("change", draw);   // re-draw whenever the dropdown changes
+sel.addEventListener("change", draw);
 draw();
+}
+
+loadDashboard().catch(error => {
+  document.getElementById("cards").textContent =
+    "Error loading data: " + error.message;
+});
 </script>
 </body>
 </html>
