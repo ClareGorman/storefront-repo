@@ -5,8 +5,11 @@
   "chain": "A",
   "about": "Gucci Gang is a Minnesota-based grain supplier focused on sourcing quality corn from local farmers. We help connect farms with businesses and processors that need reliable corn supplies. Our goal is to provide quality products and dependable service.",
   "members": [
-    { "name": "Clare Gorman", "github": "ClareGorman", "role": "e.g. operations lead" },
-    { "name": "Saad Alanazi", "github": "Saaden89", "role": "e.g. operations lead" }
+    { "name": "Clare Gorman", "github": "ClareGorman", "role": "Plan" },
+    { "name": "Saad Alanazi", "github": "Saaden89", "role": "Source" },
+    { "name": "Melvin Keleki", "github": "melvinkeleki", "role": "Make" },
+    { "name": "Breanna Stueve", "github": "breannastueve", "role": "Deliver" },
+    { "name": "Patrick Landwehr", "github": "Prlandwehr21", "role": "Return" }
   ],
-  "how_to_order": "Tell customers how to place an order with you. (The class will agree on a standard later; for now, write what you think works.)"
+  "how_to_order": "Open a GitHub issue in our repository titled 'Order Request' and include: (1) quantity in bushels, (2) grade needed (e.g., US No. 2 Yellow Corn), (3) delivery window, (4) delivery location or pickup, and (5) a contact name. We will reply within one business day to confirm availability, price per bushel and the delivery schedule. Your order is confirmed once both sides agree on the terms in the issue."
 }
