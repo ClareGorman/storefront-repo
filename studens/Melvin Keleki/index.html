@@ -1,3 +1,4 @@
+
 <!doctype html>
 <!-- Source accessed November 23, 2026. County figures were copied into corn-production.csv.
 https://www.nass.usda.gov/Statistics_by_State/Minnesota/Publications/County_Estimates/2024/MN-CtyEst-Corn-02-24.pdf
@@ -49,13 +50,13 @@ https://www.nass.usda.gov/Statistics_by_State/Minnesota/Publications/County_Esti
   const chart = document.querySelector("#chart");
 
   async function loadProduction() {
-    // Data comes in from the CSV beside this HTML file.
+    // ME: 	The browser opens corn-production.csv from the same folder as the webpage.
     const response = await fetch("./corn-production.csv");
     if (!response.ok) throw new Error("CSV could not be loaded.");
 
     const csv = await response.text();
 
-    // This array holds each county's annual record while the page runs.
+    // ME: The page turns each CSV row into a record with a county, a year, and a bushel total. It keeps those records in records while the page is open.
     const records = csv.trim().split(/\r?\n/).slice(1).map(line => {
       const [county, year, value] = line.split(",");
       return { county, year, bushels: value.trim() === "" ? null : Number(value) };
@@ -64,7 +65,7 @@ https://www.nass.usda.gov/Statistics_by_State/Minnesota/Publications/County_Esti
     const counties = [...new Set(records.map(record => record.county))];
 
     function updateChart() {
-      // Use the selected year or average both years, then sort and redraw the chart.
+      // ME: 	Use the comment inside this function. The dropdown tells the page which year or average to show. The page sorts the results and redraws the bars.
       const years = period.value === "average" ? ["2022", "2023"] : [period.value];
       const ranking = counties.map(county => {
         const values = years.map(year =>
